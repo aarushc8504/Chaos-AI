@@ -1,9 +1,7 @@
 import "dotenv/config";
-
 import express from "express";
 import crypto from "crypto";
 import { google } from "googleapis";
-
 import User from "../../models/User.js";
 
 const router = express.Router();
@@ -19,18 +17,21 @@ router.get("/google", (req, res) => {
 
   req.session.oauthState = state;
 
-  const authorizationUrl = oauth2Client.generateAuthUrl({
-    access_type: "offline",
-    scope: [
-      "openid",
-      "email",
-      "profile",
-    ],
-    state,
-    prompt: "select_account",
-  });
+  req.session.save((sessionError) => {
+    if (sessionError) {
+      console.error("OAuth session save error:", sessionError);
+      return res.status(500).send("Failed to start Google authentication.");
+    }
 
-  res.redirect(authorizationUrl);
+    const authorizationUrl = oauth2Client.generateAuthUrl({
+      access_type: "offline",
+      scope: ["openid", "email", "profile"],
+      state,
+      prompt: "select_account",
+    });
+
+    res.redirect(authorizationUrl);
+  });
 });
 
 router.get("/google/callback", async (req, res) => {
@@ -48,7 +49,6 @@ router.get("/google/callback", async (req, res) => {
     delete req.session.oauthState;
 
     const { tokens } = await oauth2Client.getToken(code);
-
     oauth2Client.setCredentials(tokens);
 
     const oauth2 = google.oauth2({
@@ -89,7 +89,16 @@ router.get("/google/callback", async (req, res) => {
       picture: user.picture,
     };
 
-    res.redirect(`${process.env.FRONTEND_URL}/workspace`);
+    req.session.save((sessionError) => {
+      if (sessionError) {
+        console.error("Login session save error:", sessionError);
+        return res.status(500).send("Failed to save login session.");
+      }
+
+      console.log("Login session saved successfully:", user.email);
+
+      res.redirect(`${process.env.FRONTEND_URL}/workspace`);
+    });
   } catch (error) {
     console.error("Google OAuth error:", error);
     res.status(500).send("Google authentication failed.");
@@ -117,7 +126,11 @@ router.post("/logout", (req, res) => {
       });
     }
 
-    res.clearCookie("connect.sid");
+    res.clearCookie("chaos.sid", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
 
     res.json({
       message: "Logged out successfully",
