@@ -404,7 +404,7 @@ function MCQs({
   ) {
     return (
       <div
-        className={`min-h-full overflow-y-auto px-8 py-8 ${currentTheme.page}`}
+        className={`h-full min-h-0 overflow-y-auto overscroll-contain px-8 py-8 ${currentTheme.page}`}
       >
         <div className="mx-auto max-w-5xl">
           <div className="mb-10">
@@ -676,7 +676,7 @@ function MCQs({
   ) {
     return (
       <div
-        className={`flex min-h-full items-center justify-center px-6 ${currentTheme.page}`}
+        className={`flex h-full min-h-0 items-center justify-center overflow-y-auto px-6 ${currentTheme.page}`}
       >
         <div className="text-center">
           <div
@@ -732,7 +732,7 @@ function MCQs({
 
     return (
       <div
-        className={`flex min-h-full items-center justify-center px-6 py-10 ${currentTheme.page}`}
+        className={`flex h-full min-h-0 items-center justify-center overflow-y-auto px-6 py-10 ${currentTheme.page}`}
       >
         <div
           className={`w-full max-w-xl rounded-3xl border p-10 text-center shadow-sm ${currentTheme.card}`}
@@ -820,7 +820,7 @@ function MCQs({
 
   return (
     <div
-      className={`min-h-full overflow-y-auto px-8 py-8 ${currentTheme.page}`}
+      className={`h-full min-h-0 overflow-y-auto overscroll-contain px-8 py-8 ${currentTheme.page}`}
     >
       <div className="mx-auto max-w-4xl">
         <button
@@ -848,8 +848,7 @@ function MCQs({
               className={`text-2xl font-semibold tracking-tight ${currentTheme.heading}`}
             >
               Question{" "}
-              {currentQuestion +
-                1}{" "}
+              {currentQuestion + 1}{" "}
               <span
                 className={`font-normal ${currentTheme.subtle}`}
               >
@@ -910,8 +909,7 @@ function MCQs({
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-current text-xs font-semibold">
                     {String.fromCharCode(
-                      65 +
-                        index
+                      65 + index
                     )}
                   </span>
 
