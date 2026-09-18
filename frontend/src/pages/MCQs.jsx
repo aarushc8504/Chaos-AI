@@ -79,6 +79,16 @@ function MCQs({
     setFinished,
   ] = useState(false);
 
+  const [
+    savingResult,
+    setSavingResult,
+  ] = useState(false);
+
+  const [
+    resultSaved,
+    setResultSaved,
+  ] = useState(false);
+
   const darkTheme =
     theme !== "paper";
 
@@ -207,6 +217,8 @@ function MCQs({
       setSubmitted(false);
       setScore(0);
       setFinished(false);
+      setSavingResult(false);
+      setResultSaved(false);
 
       try {
         const response =
@@ -324,7 +336,7 @@ function MCQs({
     };
 
   const nextQuestion =
-    () => {
+    async () => {
       if (
         currentQuestion <
         questions.length - 1
@@ -343,7 +355,109 @@ function MCQs({
         return;
       }
 
-      setFinished(true);
+      const finalCorrectAnswers =
+        score +
+        (selectedAnswer ===
+        questions[currentQuestion]
+          .correctAnswer
+          ? 1
+          : 0);
+
+      setScore(
+        finalCorrectAnswers
+      );
+
+      await saveQuizResult(
+        finalCorrectAnswers
+      );
+    };
+
+  const saveQuizResult =
+    async (
+      finalCorrectAnswers
+    ) => {
+      if (
+        !selectedMaterial ||
+        questions.length ===
+          0 ||
+        resultSaved ||
+        savingResult
+      ) {
+        return;
+      }
+
+      setSavingResult(true);
+      setError("");
+
+      try {
+        const response =
+          await fetch(
+            `${API_URL}/api/quiz-results`,
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+
+              credentials:
+                "include",
+
+              body: JSON.stringify({
+                materialId:
+                  selectedMaterial,
+
+                topic:
+                  topic.trim(),
+
+                difficulty,
+
+                totalQuestions:
+                  questions.length,
+
+                correctAnswers:
+                  finalCorrectAnswers,
+              }),
+            }
+          );
+
+        const data =
+          await response.json();
+
+        if (
+          !response.ok
+        ) {
+          throw new Error(
+            data.message ||
+              "Failed to save quiz result."
+          );
+        }
+
+        console.log(
+          "[MCQs] Quiz result saved:",
+          data.result
+        );
+
+        setResultSaved(true);
+        setFinished(true);
+      } catch (
+        err
+      ) {
+        console.error(
+          "[MCQs] Result save error:",
+          err
+        );
+
+        setError(
+          err.message ||
+            "Failed to save quiz result."
+        );
+
+        setFinished(true);
+      } finally {
+        setSavingResult(false);
+      }
     };
 
   const restartQuiz =
@@ -354,6 +468,8 @@ function MCQs({
       setSubmitted(false);
       setScore(0);
       setFinished(false);
+      setSavingResult(false);
+      setResultSaved(false);
       setError("");
     };
 
@@ -791,11 +907,34 @@ function MCQs({
             </div>
           </div>
 
+          {savingResult && (
+            <p
+              className={`mt-6 text-sm ${currentTheme.muted}`}
+            >
+              Saving your result...
+            </p>
+          )}
+
+          {resultSaved && (
+            <p className="mt-6 text-sm text-emerald-400">
+              Result saved to your study history.
+            </p>
+          )}
+
+          {!resultSaved && error && (
+            <div className="mt-6 rounded-xl border border-red-800 bg-red-950/30 p-4 text-left text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
           <button
             onClick={
               restartQuiz
             }
-            className={`mt-8 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium ${currentTheme.button}`}
+            disabled={
+              savingResult
+            }
+            className={`mt-8 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 ${currentTheme.button}`}
           >
             <RotateCcw
               size={15}
@@ -993,12 +1132,17 @@ function MCQs({
                 onClick={
                   nextQuestion
                 }
-                className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium ${currentTheme.button}`}
+                disabled={
+                  savingResult
+                }
+                className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 ${currentTheme.button}`}
               >
                 {currentQuestion <
                 questions.length -
                   1
                   ? "Next question"
+                  : savingResult
+                  ? "Saving result..."
                   : "See results"}
 
                 <ChevronRight
