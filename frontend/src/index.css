@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #0b0d0f;
+}
+
+/* =========================================
+   CHAOS AI THEMES
+   ========================================= */
+
+.chaos-theme {
+  min-height: 100vh;
+  transition:
+    background-color 250ms ease,
+    color 250ms ease;
+}
+
+/* =========================================
+   OBSIDIAN
+   ========================================= */
+
+.chaos-theme[data-theme="obsidian"] {
+  --chaos-bg: #0b0d0f;
+  --chaos-panel: #101214;
+  --chaos-panel-2: #181a1d;
+  --chaos-border: #27292d;
+  --chaos-text: #ffffff;
+  --chaos-muted: #71717a;
+  --chaos-soft: #a1a1aa;
+  --chaos-accent: #ffffff;
+  --chaos-accent-text: #000000;
+}
+
+/* =========================================
+   MIDNIGHT
+   ========================================= */
+
+.chaos-theme[data-theme="midnight"] {
+  --chaos-bg: #080b12;
+  --chaos-panel: #0d111a;
+  --chaos-panel-2: #151b27;
+  --chaos-border: #263040;
+  --chaos-text: #f8fafc;
+  --chaos-muted: #718096;
+  --chaos-soft: #a7b3c7;
+  --chaos-accent: #dbeafe;
+  --chaos-accent-text: #0f172a;
+}
+
+/* =========================================
+   FOREST
+   ========================================= */
+
+.chaos-theme[data-theme="forest"] {
+  --chaos-bg: #09100d;
+  --chaos-panel: #0e1713;
+  --chaos-panel-2: #17231d;
+  --chaos-border: #293b31;
+  --chaos-text: #f1f5f2;
+  --chaos-muted: #718078;
+  --chaos-soft: #aab8b0;
+  --chaos-accent: #d9f99d;
+  --chaos-accent-text: #14210d;
+}
+
+/* =========================================
+   PAPER
+   ========================================= */
+
+.chaos-theme[data-theme="paper"] {
+  --chaos-bg: #f5f5f2;
+  --chaos-panel: #ffffff;
+  --chaos-panel-2: #eeeeeb;
+  --chaos-border: #d8d8d2;
+  --chaos-text: #18181b;
+  --chaos-muted: #71717a;
+  --chaos-soft: #52525b;
+  --chaos-accent: #18181b;
+  --chaos-accent-text: #ffffff;
+}
+
+/* =========================================
+   BASE THEME OVERRIDES
+   ========================================= */
+
+.chaos-theme[data-theme="midnight"],
+.chaos-theme[data-theme="forest"],
+.chaos-theme[data-theme="paper"] {
+  background: var(--chaos-bg);
+  color: var(--chaos-text);
+}
+
+/* Main Chaos background */
+
+.chaos-theme[data-theme="midnight"] .bg-\[\#0b0d0f\],
+.chaos-theme[data-theme="forest"] .bg-\[\#0b0d0f\],
+.chaos-theme[data-theme="paper"] .bg-\[\#0b0d0f\] {
+  background-color: var(--chaos-bg) !important;
+}
+
+/* Panels */
+
+.chaos-theme[data-theme="midnight"] .bg-zinc-900,
+.chaos-theme[data-theme="forest"] .bg-zinc-900,
+.chaos-theme[data-theme="paper"] .bg-zinc-900 {
+  background-color: var(--chaos-panel-2) !important;
+}
+
+.chaos-theme[data-theme="midnight"] .bg-zinc-900\/40,
+.chaos-theme[data-theme="forest"] .bg-zinc-900\/40,
+.chaos-theme[data-theme="paper"] .bg-zinc-900\/40 {
+  background-color: color-mix(
+    in srgb,
+    var(--chaos-panel) 70%,
+    transparent
+  ) !important;
+}
+
+.chaos-theme[data-theme="midnight"] .bg-zinc-900\/50,
+.chaos-theme[data-theme="forest"] .bg-zinc-900\/50,
+.chaos-theme[data-theme="paper"] .bg-zinc-900\/50 {
+  background-color: color-mix(
+    in srgb,
+    var(--chaos-panel) 80%,
+    transparent
+  ) !important;
+}
+
+.chaos-theme[data-theme="midnight"] .bg-zinc-800,
+.chaos-theme[data-theme="forest"] .bg-zinc-800 {
+  background-color: var(--chaos-panel-2) !important;
+}
+
+.chaos-theme[data-theme="paper"] .bg-zinc-800 {
+  background-color: #deded8 !important;
+}
+
+/* Borders */
+
+.chaos-theme[data-theme="midnight"] .border-zinc-800,
+.chaos-theme[data-theme="forest"] .border-zinc-800,
+.chaos-theme[data-theme="paper"] .border-zinc-800 {
+  border-color: var(--chaos-border) !important;
+}
+
+.chaos-theme[data-theme="midnight"] .border-zinc-700,
+.chaos-theme[data-theme="forest"] .border-zinc-700,
+.chaos-theme[data-theme="paper"] .border-zinc-700 {
+  border-color: color-mix(
+    in srgb,
+    var(--chaos-border) 75%,
+    white 25%
+  ) !important;
+}
+
+/* Main text */
+
+.chaos-theme[data-theme="paper"] .text-white {
+  color: var(--chaos-text) !important;
+}
+
+.chaos-theme[data-theme="paper"] .text-zinc-200,
+.chaos-theme[data-theme="paper"] .text-zinc-300 {
+  color: #3f3f46 !important;
+}
+
+.chaos-theme[data-theme="paper"] .text-zinc-400,
+.chaos-theme[data-theme="paper"] .text-zinc-500 {
+  color: #71717a !important;
+}
+
+.chaos-theme[data-theme="paper"] .text-zinc-600,
+.chaos-theme[data-theme="paper"] .text-zinc-700 {
+  color: #8a8a84 !important;
+}
+
+/* Paper theme inputs */
+
+.chaos-theme[data-theme="paper"] textarea {
+  color: #18181b !important;
+}
+
+.chaos-theme[data-theme="paper"] textarea::placeholder {
+  color: #a1a1aa !important;
+}
+
+/* Active navigation */
+
+.chaos-theme[data-theme="paper"] .bg-zinc-800.text-white {
+  background-color: #deded8 !important;
+  color: #18181b !important;
+}
+
+/* White buttons */
+
+.chaos-theme[data-theme="midnight"] .bg-white,
+.chaos-theme[data-theme="forest"] .bg-white {
+  background-color: var(--chaos-accent) !important;
+  color: var(--chaos-accent-text) !important;
+}
+
+.chaos-theme[data-theme="paper"] .bg-white {
+  background-color: #18181b !important;
+  color: #ffffff !important;
+}
+
+/* Theme transition */
+
+.chaos-theme *,
+.chaos-theme {
+  transition-property:
+    background-color,
+    border-color,
+    color;
+  transition-duration: 180ms;
+  transition-timing-function: ease;
+}
+
+.chaos-theme textarea,
+.chaos-theme button,
+.chaos-theme img {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    opacity 180ms ease,
+    transform 180ms ease;
+}
