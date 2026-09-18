@@ -3,7 +3,6 @@ import "dotenv/config";
 import dns from "dns";
 
 dns.setDefaultResultOrder("ipv4first");
-
 dns.setServers([
   "1.1.1.1",
   "8.8.8.8",
@@ -163,6 +162,10 @@ export async function runChaosAgent({
 
       cwd:
         backendRoot,
+
+      env: {
+        ...process.env,
+      },
     });
 
   const mcpClient =
