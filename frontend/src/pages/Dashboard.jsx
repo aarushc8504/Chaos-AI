@@ -14,6 +14,8 @@ import {
   Upload,
 } from "lucide-react";
 
+import API_URL from "../config";
+
 function Dashboard({
   user,
   materials = [],
@@ -34,10 +36,10 @@ function Dashboard({
 
       const [quizResponse, flashcardResponse] =
         await Promise.all([
-          fetch("http://localhost:5000/api/quiz-results", {
+          fetch(`${API_URL}/api/quiz-results`, {
             credentials: "include",
           }),
-          fetch("http://localhost:5000/api/flashcard-results", {
+          fetch(`${API_URL}/api/flashcard-results`, {
             credentials: "include",
           }),
         ]);
@@ -182,6 +184,7 @@ function Dashboard({
     if (!date) return "";
 
     const value = new Date(date);
+
     if (Number.isNaN(value.getTime())) return "";
 
     const diff = Date.now() - value.getTime();
@@ -191,9 +194,11 @@ function Dashboard({
     if (minutes < 60) return `${minutes}m ago`;
 
     const hours = Math.floor(minutes / 60);
+
     if (hours < 24) return `${hours}h ago`;
 
     const days = Math.floor(hours / 24);
+
     if (days < 7) return `${days}d ago`;
 
     return value.toLocaleDateString(undefined, {
@@ -215,15 +220,18 @@ function Dashboard({
   return (
     <div className="h-full min-h-0 overflow-y-auto">
       <div className="mx-auto w-full max-w-7xl p-6 lg:p-8">
+
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-[10px] font-semibold tracking-[0.2em] text-zinc-600">
               CHAOS AI
             </p>
+
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white">
               Good to see you
               {user?.name ? `, ${user.name.split(" ")[0]}` : ""}.
             </h1>
+
             <p className="mt-1 text-sm text-zinc-500">
               Pick up where you left off.
             </p>
@@ -281,6 +289,7 @@ function Dashboard({
               <p className="text-[10px] font-semibold tracking-[0.18em] text-zinc-600">
                 CONTINUE STUDYING
               </p>
+
               <h2 className="mt-1 text-sm font-medium text-zinc-200">
                 Your study space
               </h2>
@@ -289,8 +298,10 @@ function Dashboard({
             {continueMaterial ? (
               <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/30">
                 <div className="p-6">
+
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex min-w-0 items-start gap-4">
+
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-zinc-800">
                         <BookOpen size={19} className="text-zinc-300" />
                       </div>
@@ -299,6 +310,7 @@ function Dashboard({
                         <p className="truncate text-sm font-medium text-zinc-200">
                           {continueMaterial.originalName || "Study material"}
                         </p>
+
                         <p className="mt-1 text-xs text-zinc-600">
                           {continueMaterial.pageCount
                             ? `${continueMaterial.pageCount} pages`
@@ -342,15 +354,19 @@ function Dashboard({
               </div>
             ) : (
               <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-900/20 p-8 text-center">
+
                 <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-900">
                   <Upload size={18} className="text-zinc-500" />
                 </div>
+
                 <h3 className="mt-4 text-sm font-medium text-zinc-300">
                   Your study space is empty
                 </h3>
+
                 <p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-zinc-600">
                   Upload your first PDF or study material and start learning.
                 </p>
+
                 <button
                   onClick={onOpenWorkspace}
                   className="mt-5 rounded-xl bg-white px-4 py-2.5 text-xs font-medium text-black transition hover:bg-zinc-200"
@@ -365,6 +381,7 @@ function Dashboard({
                 <p className="text-[10px] font-semibold tracking-[0.18em] text-zinc-600">
                   RECENT ACTIVITY
                 </p>
+
                 <h2 className="mt-1 text-sm font-medium text-zinc-200">
                   What you've been doing
                 </h2>
@@ -395,6 +412,7 @@ function Dashboard({
                             ? "MCQ Quiz"
                             : "Flashcard Session"}
                         </p>
+
                         <p className="mt-0.5 truncate text-[10px] text-zinc-600">
                           {activity.materialName}
                           {activity.topic ? ` · ${activity.topic}` : ""}
@@ -405,6 +423,7 @@ function Dashboard({
                         <p className="text-xs font-medium text-zinc-300">
                           {activity.score}
                         </p>
+
                         <p className="mt-0.5 text-[10px] text-zinc-600">
                           {formatDate(activity.date)}
                         </p>
@@ -469,18 +488,28 @@ function Dashboard({
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-900">
                   <Trophy size={16} className="text-zinc-500" />
                 </div>
+
                 <div>
                   <p className="text-xs font-medium text-zinc-300">
                     Study snapshot
                   </p>
+
                   <p className="mt-0.5 text-[10px] text-zinc-600">
                     Your current progress
                   </p>
                 </div>
               </div>
 
-              <ProgressRow label="Quiz accuracy" value={overallAccuracy} />
-              <ProgressRow label="Flashcard recall" value={flashcardRecall} />
+              <ProgressRow
+                label="Quiz accuracy"
+                value={overallAccuracy}
+              />
+
+              <ProgressRow
+                label="Flashcard recall"
+                value={flashcardRecall}
+              />
+
               <ProgressRow
                 label="Materials ready"
                 value={
@@ -495,7 +524,9 @@ function Dashboard({
 
             {error && (
               <div className="mt-4 rounded-xl border border-red-900/50 bg-red-950/20 p-3">
-                <p className="text-[10px] leading-4 text-red-400">{error}</p>
+                <p className="text-[10px] leading-4 text-red-400">
+                  {error}
+                </p>
               </div>
             )}
           </aside>
@@ -512,17 +543,29 @@ function StatCard({ icon: Icon, label, value, detail }) {
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-800">
           <Icon size={17} className="text-zinc-400" />
         </div>
+
         <span className="text-[10px] uppercase tracking-wider text-zinc-600">
           {label}
         </span>
       </div>
-      <p className="mt-5 text-2xl font-semibold text-white">{value}</p>
-      <p className="mt-1 text-xs text-zinc-500">{detail}</p>
+
+      <p className="mt-5 text-2xl font-semibold text-white">
+        {value}
+      </p>
+
+      <p className="mt-1 text-xs text-zinc-500">
+        {detail}
+      </p>
     </div>
   );
 }
 
-function ActionButton({ icon: Icon, title, detail, onClick }) {
+function ActionButton({
+  icon: Icon,
+  title,
+  detail,
+  onClick,
+}) {
   return (
     <button
       onClick={onClick}
@@ -531,10 +574,17 @@ function ActionButton({ icon: Icon, title, detail, onClick }) {
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-800">
         <Icon size={17} className="text-zinc-400" />
       </div>
+
       <div className="flex-1">
-        <p className="text-xs font-medium text-zinc-300">{title}</p>
-        <p className="mt-1 text-[10px] text-zinc-600">{detail}</p>
+        <p className="text-xs font-medium text-zinc-300">
+          {title}
+        </p>
+
+        <p className="mt-1 text-[10px] text-zinc-600">
+          {detail}
+        </p>
       </div>
+
       <ArrowRight
         size={14}
         className="text-zinc-700 transition group-hover:translate-x-0.5 group-hover:text-zinc-400"
@@ -543,17 +593,31 @@ function ActionButton({ icon: Icon, title, detail, onClick }) {
   );
 }
 
-function ProgressRow({ label, value }) {
+function ProgressRow({
+  label,
+  value,
+}) {
   return (
     <div className="mt-5">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-zinc-600">{label}</span>
-        <span className="text-[10px] text-zinc-400">{value}%</span>
+        <span className="text-[10px] text-zinc-600">
+          {label}
+        </span>
+
+        <span className="text-[10px] text-zinc-400">
+          {value}%
+        </span>
       </div>
+
       <div className="mt-2 h-1 overflow-hidden rounded-full bg-zinc-800">
         <div
           className="h-full rounded-full bg-zinc-400 transition-all"
-          style={{ width: `${Math.min(Math.max(value, 0), 100)}%` }}
+          style={{
+            width: `${Math.min(
+              Math.max(value, 0),
+              100
+            )}%`,
+          }}
         />
       </div>
     </div>

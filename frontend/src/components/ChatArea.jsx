@@ -16,6 +16,8 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 
+import API_URL from "../config";
+
 function ChatArea({
   selectedMaterialId,
   materials,
@@ -200,7 +202,7 @@ function ChatArea({
 
       const response =
         await fetch(
-          "http://localhost:5000/api/chat",
+          `${API_URL}/api/chat`,
           {
             method: "POST",
             credentials: "include",

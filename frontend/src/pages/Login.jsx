@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ArrowRight, Brain, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import KnowledgeCore from "../components/KnowledgeCore";
+import API_URL from "../config";
 
 function Login() {
   const [loading, setLoading] = useState(false);
@@ -9,7 +10,7 @@ function Login() {
   const handleGoogleLogin = () => {
     setLoading(true);
 
-    window.location.href = "http://localhost:5000/auth/google";
+    window.location.href = `${API_URL}/auth/google`;
   };
 
   return (

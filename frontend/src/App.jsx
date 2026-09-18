@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Workspace from "./pages/Workspace";
+import API_URL from "./config";
 
 function App() {
   const [page, setPage] = useState(window.location.pathname);
@@ -10,7 +11,7 @@ function App() {
 
   const checkAuth = async () => {
     try {
-      const response = await fetch("http://localhost:5000/auth/me", {
+      const response = await fetch(`${API_URL}/auth/me`, {
         credentials: "include",
       });
 

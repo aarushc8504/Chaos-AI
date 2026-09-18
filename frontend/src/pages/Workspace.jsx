@@ -1,4 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import API_URL from "../config";
 
 import Sidebar from "../components/Sidebar";
 import UploadPanel from "../components/UploadPanel";
@@ -19,15 +24,14 @@ import {
   Bell,
   BookOpen,
   Check,
+  Construction,
 } from "lucide-react";
 
 function Workspace({ user }) {
   const [activePage, setActivePage] = useState("Dashboard");
-
   const [materials, setMaterials] = useState([]);
   const [selectedMaterialId, setSelectedMaterialId] = useState(null);
   const [sources, setSources] = useState([]);
-
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [theme, setTheme] = useState(() => {
@@ -76,7 +80,7 @@ function Workspace({ user }) {
   const loadMaterials = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/api/materials",
+        `${API_URL}/api/materials`,
         {
           credentials: "include",
         }
@@ -110,12 +114,15 @@ function Workspace({ user }) {
       if (
         selectedMaterialId &&
         !loadedMaterials.some(
-          (material) =>
-            material._id === selectedMaterialId
+          (material) => material._id === selectedMaterialId
         )
       ) {
         setSelectedMaterialId(null);
         setSources([]);
+
+        if (activePage === "Study Workspace") {
+          setActivePage("My Library");
+        }
       }
     } catch (error) {
       console.error(
@@ -142,26 +149,10 @@ function Workspace({ user }) {
       loadMaterials();
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+    };
   }, [materials]);
-
-  useEffect(() => {
-    localStorage.setItem("chaos-theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "chaos-notifications",
-      notifications
-    );
-  }, [notifications]);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "chaos-study-mode",
-      studyMode
-    );
-  }, [studyMode]);
 
   useEffect(() => {
     if (!settingsOpen) {
@@ -186,6 +177,27 @@ function Workspace({ user }) {
       );
     };
   }, [settingsOpen]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "chaos-theme",
+      theme
+    );
+  }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "chaos-notifications",
+      notifications
+    );
+  }, [notifications]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "chaos-study-mode",
+      studyMode
+    );
+  }, [studyMode]);
 
   const handleMaterialUploaded = (material) => {
     setMaterials((prev) => [
@@ -235,6 +247,10 @@ function Workspace({ user }) {
     loadMaterials();
   };
 
+  const handleLibraryRefresh = () => {
+    loadMaterials();
+  };
+
   const renderStudyWorkspace = () => {
     return (
       <div className="grid h-full min-h-0 lg:grid-cols-[260px_minmax(0,1fr)_270px]">
@@ -263,7 +279,34 @@ function Workspace({ user }) {
     );
   };
 
-  const renderCurrentPage = () => {
+  const renderPlaceholder = (title, description) => {
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="w-full max-w-lg text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900">
+            <Construction
+              size={22}
+              className="text-zinc-500"
+            />
+          </div>
+
+          <p className="mt-5 text-[10px] font-semibold tracking-[0.2em] text-zinc-600">
+            CHAOS AI
+          </p>
+
+          <h1 className="mt-2 text-xl font-medium text-white">
+            {title}
+          </h1>
+
+          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-zinc-500">
+            {description}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPage = () => {
     if (activePage === "Dashboard") {
       return (
         <Dashboard
@@ -271,14 +314,14 @@ function Workspace({ user }) {
           materials={materials}
           onOpenWorkspace={openWorkspace}
           onOpenMCQs={() => setActivePage("MCQs")}
-          onOpenLibrary={() =>
-            setActivePage("My Library")
-          }
-          onOpenFlashcards={() =>
-            setActivePage("Flashcards")
-          }
+          onOpenLibrary={() => setActivePage("My Library")}
+          onOpenFlashcards={() => setActivePage("Flashcards")}
         />
       );
+    }
+
+    if (activePage === "Study Workspace") {
+      return renderStudyWorkspace();
     }
 
     if (activePage === "MCQs") {
@@ -291,12 +334,7 @@ function Workspace({ user }) {
     }
 
     if (activePage === "Analytics") {
-      return (
-        <Analytics
-          materials={materials}
-          theme={theme}
-        />
-      );
+      return <Analytics theme={theme} />;
     }
 
     if (activePage === "My Library") {
@@ -304,7 +342,7 @@ function Workspace({ user }) {
         <Library
           materials={materials}
           onOpenMaterial={openWorkspace}
-          onRefresh={loadMaterials}
+          onRefresh={handleLibraryRefresh}
           onMaterialDeleted={handleMaterialDeleted}
         />
       );
@@ -328,7 +366,7 @@ function Workspace({ user }) {
       );
     }
 
-    return null;
+    return renderStudyWorkspace();
   };
 
   return (
@@ -343,49 +381,19 @@ function Workspace({ user }) {
       />
 
       <main className="h-screen min-h-0 overflow-hidden md:ml-64">
-
-        {/* 
-          IMPORTANT:
-          Chat workspace is ALWAYS mounted.
-          We only hide it visually when another page is active.
-          Therefore ChatArea state/messages survive navigation.
-        */}
-        <div
-          className={`h-full ${
-            activePage === "Study Workspace"
-              ? "block"
-              : "hidden"
-          }`}
-        >
-          {renderStudyWorkspace()}
-        </div>
-
-        {/* Other pages */}
-        <div
-          className={`h-full ${
-            activePage === "Study Workspace"
-              ? "hidden"
-              : "block"
-          }`}
-        >
-          {renderCurrentPage()}
-        </div>
+        {renderPage()}
       </main>
 
       {settingsOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 p-0 backdrop-blur-sm sm:items-center sm:p-6"
           onMouseDown={(event) => {
-            if (
-              event.target ===
-              event.currentTarget
-            ) {
+            if (event.target === event.currentTarget) {
               setSettingsOpen(false);
             }
           }}
         >
           <div className="flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-zinc-800 bg-[#101214] shadow-2xl sm:max-w-lg sm:rounded-2xl">
-
             <div className="flex shrink-0 items-center justify-between border-b border-zinc-800 px-5 py-4 sm:px-6">
               <div>
                 <p className="text-[10px] font-semibold tracking-[0.2em] text-zinc-600">
@@ -398,9 +406,7 @@ function Workspace({ user }) {
               </div>
 
               <button
-                onClick={() =>
-                  setSettingsOpen(false)
-                }
+                onClick={() => setSettingsOpen(false)}
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-800 hover:text-white"
               >
                 <X size={17} />
@@ -408,7 +414,6 @@ function Workspace({ user }) {
             </div>
 
             <div className="min-h-0 overflow-y-auto">
-
               <div className="border-b border-zinc-800 p-5 sm:p-6">
                 <div className="mb-4 flex items-center gap-2">
                   <User
@@ -462,16 +467,13 @@ function Workspace({ user }) {
 
                 <div className="grid grid-cols-2 gap-2">
                   {themes.map((item) => {
-                    const active =
-                      theme === item.id;
+                    const active = theme === item.id;
 
                     return (
                       <button
                         key={item.id}
-                        onClick={() =>
-                          setTheme(item.id)
-                        }
-                        className={`rounded-xl border p-3 text-left transition ${
+                        onClick={() => setTheme(item.id)}
+                        className={`group rounded-xl border p-3 text-left transition ${
                           active
                             ? "border-zinc-500"
                             : "border-zinc-800 hover:border-zinc-700"
@@ -480,12 +482,33 @@ function Workspace({ user }) {
                         <div
                           className="mb-3 h-12 rounded-lg border"
                           style={{
-                            backgroundColor:
-                              item.preview,
-                            borderColor:
-                              item.border,
+                            backgroundColor: item.preview,
+                            borderColor: item.border,
                           }}
-                        />
+                        >
+                          <div className="flex h-full items-end gap-1 p-2">
+                            <span
+                              className="h-1.5 w-5 rounded-full"
+                              style={{
+                                backgroundColor: item.border,
+                              }}
+                            />
+
+                            <span
+                              className="h-1.5 w-8 rounded-full"
+                              style={{
+                                backgroundColor: item.border,
+                              }}
+                            />
+
+                            <span
+                              className="h-1.5 w-3 rounded-full"
+                              style={{
+                                backgroundColor: item.border,
+                              }}
+                            />
+                          </div>
+                        </div>
 
                         <div className="flex items-center justify-between">
                           <div>
@@ -524,9 +547,7 @@ function Workspace({ user }) {
 
                 <button
                   onClick={() =>
-                    setNotifications(
-                      (value) => !value
-                    )
+                    setNotifications((value) => !value)
                   }
                   className="flex w-full items-center gap-3 rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 text-left transition hover:border-zinc-700"
                 >
@@ -583,15 +604,12 @@ function Workspace({ user }) {
                     "Balanced",
                     "Detailed",
                   ].map((mode) => {
-                    const active =
-                      studyMode === mode;
+                    const active = studyMode === mode;
 
                     return (
                       <button
                         key={mode}
-                        onClick={() =>
-                          setStudyMode(mode)
-                        }
+                        onClick={() => setStudyMode(mode)}
                         className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
                           active
                             ? "border-zinc-600 bg-zinc-800/80"
@@ -604,16 +622,13 @@ function Workspace({ user }) {
                           </p>
 
                           <p className="mt-0.5 text-[10px] text-zinc-600">
-                            {mode ===
-                              "Focused" &&
+                            {mode === "Focused" &&
                               "Short, direct explanations"}
 
-                            {mode ===
-                              "Balanced" &&
+                            {mode === "Balanced" &&
                               "Clear explanations with useful detail"}
 
-                            {mode ===
-                              "Detailed" &&
+                            {mode === "Detailed" &&
                               "More thorough explanations and examples"}
                           </p>
                         </div>

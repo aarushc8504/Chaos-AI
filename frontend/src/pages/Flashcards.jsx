@@ -17,6 +17,8 @@ import {
   X,
 } from "lucide-react";
 
+import API_URL from "../config";
+
 function Flashcards({
   materials = [],
   theme = "obsidian",
@@ -155,7 +157,7 @@ function Flashcards({
       try {
         const response =
           await fetch(
-            "http://localhost:5000/api/chat/flashcards",
+            `${API_URL}/api/chat/flashcards`,
             {
               method: "POST",
 
@@ -257,7 +259,7 @@ function Flashcards({
       try {
         const response =
           await fetch(
-            "http://localhost:5000/api/flashcard-results",
+            `${API_URL}/api/flashcard-results`,
             {
               method: "POST",
 

@@ -19,13 +19,28 @@ import studyPlansRouter from "./routes/studyPlans.js";
 
 const app = express();
 
-const port =
-  process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === "production";
+
+if (!process.env.SESSION_SECRET) {
+  throw new Error("SESSION_SECRET is missing.");
+}
+
+if (!process.env.MONGODB_URI) {
+  throw new Error("MONGODB_URI is missing.");
+}
+
+if (!process.env.FRONTEND_URL) {
+  throw new Error("FRONTEND_URL is missing.");
+}
+
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 
 app.use(
   cors({
-    origin:
-      process.env.FRONTEND_URL,
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   })
 );
@@ -34,8 +49,9 @@ app.use(express.json());
 
 app.use(
   session({
-    secret:
-      process.env.SESSION_SECRET,
+    name: "chaos.sid",
+
+    secret: process.env.SESSION_SECRET,
 
     resave: false,
 
@@ -43,17 +59,19 @@ app.use(
 
     cookie: {
       httpOnly: true,
-      secure: false,
+      secure: isProduction,
       sameSite: "lax",
-      maxAge:
-        1000 *
-        60 *
-        60 *
-        24 *
-        7,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
 );
+
+app.get("/", (req, res) => {
+  res.json({
+    name: "Chaos AI Backend",
+    status: "running",
+  });
+});
 
 app.use(
   "/api/health",
@@ -91,13 +109,9 @@ app.use(
 );
 
 mongoose
-  .connect(
-    process.env.MONGODB_URI
-  )
+  .connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log(
-      "MongoDB connected successfully"
-    );
+    console.log("MongoDB connected successfully");
 
     app.listen(
       port,
@@ -113,4 +127,6 @@ mongoose
       "MongoDB connection failed:",
       error
     );
+
+    process.exit(1);
   });

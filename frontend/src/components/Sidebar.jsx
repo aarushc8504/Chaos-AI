@@ -13,6 +13,8 @@ import {
   LogOut,
 } from "lucide-react";
 
+import API_URL from "../config";
+
 function Sidebar({
   activePage,
   setActivePage,
@@ -52,7 +54,7 @@ function Sidebar({
   const logout = async () => {
     try {
       await fetch(
-        "http://localhost:5000/auth/logout",
+        `${API_URL}/auth/logout`,
         {
           method: "POST",
           credentials: "include",

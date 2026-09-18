@@ -4,6 +4,8 @@ import React, {
   useState,
 } from "react";
 
+import API_URL from "../config";
+
 import {
   Search,
   RefreshCw,
@@ -172,7 +174,7 @@ function Library({
 
         const response =
           await fetch(
-            `http://localhost:5000/api/materials/${materialId}`,
+            `${API_URL}/api/materials/${materialId}`,
             {
               method: "DELETE",
               credentials: "include",

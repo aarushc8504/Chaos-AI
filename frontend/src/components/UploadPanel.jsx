@@ -16,6 +16,8 @@ import {
   Copy,
 } from "lucide-react";
 
+import API_URL from "../config";
+
 function UploadPanel({
   materials = [],
   selectedMaterialId,
@@ -56,7 +58,7 @@ function UploadPanel({
         formData.append("file", file);
 
         const response = await fetch(
-          "http://localhost:5000/api/materials/upload",
+          `${API_URL}/api/materials/upload`,
           {
             method: "POST",
             credentials: "include",
