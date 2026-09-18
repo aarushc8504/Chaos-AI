@@ -18,7 +18,6 @@ import flashcardResultsRouter from "./routes/flashcardResults.js";
 import studyPlansRouter from "./routes/studyPlans.js";
 
 const app = express();
-
 const port = process.env.PORT || 5000;
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -50,17 +49,13 @@ app.use(express.json());
 app.use(
   session({
     name: "chaos.sid",
-
     secret: process.env.SESSION_SECRET,
-
     resave: false,
-
     saveUninitialized: false,
-
     cookie: {
       httpOnly: true,
       secure: isProduction,
-      sameSite: "lax",
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
@@ -73,60 +68,24 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use(
-  "/api/health",
-  healthRouter
-);
-
-app.use(
-  "/auth",
-  authRouter
-);
-
-app.use(
-  "/api/materials",
-  materialsRouter
-);
-
-app.use(
-  "/api/chat",
-  chatRouter
-);
-
-app.use(
-  "/api/quiz-results",
-  quizResultsRouter
-);
-
-app.use(
-  "/api/flashcard-results",
-  flashcardResultsRouter
-);
-
-app.use(
-  "/api/study-plans",
-  studyPlansRouter
-);
+app.use("/api/health", healthRouter);
+app.use("/auth", authRouter);
+app.use("/api/materials", materialsRouter);
+app.use("/api/chat", chatRouter);
+app.use("/api/quiz-results", quizResultsRouter);
+app.use("/api/flashcard-results", flashcardResultsRouter);
+app.use("/api/study-plans", studyPlansRouter);
 
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("MongoDB connected successfully");
 
-    app.listen(
-      port,
-      () => {
-        console.log(
-          `Chaos AI backend listening on port ${port}`
-        );
-      }
-    );
+    app.listen(port, () => {
+      console.log(`Chaos AI backend listening on port ${port}`);
+    });
   })
   .catch((error) => {
-    console.error(
-      "MongoDB connection failed:",
-      error
-    );
-
+    console.error("MongoDB connection failed:", error);
     process.exit(1);
   });
