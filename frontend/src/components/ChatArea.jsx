@@ -1,4 +1,5 @@
 import React, {
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -23,37 +24,143 @@ function ChatArea({
   materials,
   setSources,
 }) {
-  const [question, setQuestion] =
-    useState("");
+  const [question, setQuestion] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
 
-  const [messages, setMessages] =
-    useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
-  const [loading, setLoading] =
-    useState(false);
+  const [historyReady, setHistoryReady] = useState(false);
 
-  const [status, setStatus] =
-    useState("");
+  const fileInputRef = useRef(null);
 
-  const [selectedImage, setSelectedImage] =
-    useState(null);
+  const selectedMaterial = materials?.find(
+    (material) =>
+      material._id === selectedMaterialId
+  );
 
-  const [imagePreview, setImagePreview] =
-    useState("");
+  const getChatStorageKey = () => {
+    if (!selectedMaterialId) {
+      return "chaos-chat-history-no-material";
+    }
 
-  const fileInputRef =
-    useRef(null);
+    return `chaos-chat-history-${selectedMaterialId}`;
+  };
 
-  const selectedMaterial =
-    materials?.find(
-      (material) =>
-        material._id ===
-        selectedMaterialId
-    );
+  useEffect(() => {
+    setHistoryReady(false);
 
-  const handleImageSelect = (
-    event
-  ) => {
+    if (!selectedMaterialId) {
+      setMessages([]);
+      setSources?.([]);
+      setHistoryReady(true);
+      return;
+    }
+
+    try {
+      const storageKey = getChatStorageKey();
+      const savedHistory =
+        localStorage.getItem(storageKey);
+
+      if (savedHistory) {
+        const parsedHistory =
+          JSON.parse(savedHistory);
+
+        if (Array.isArray(parsedHistory)) {
+          setMessages(parsedHistory);
+        } else {
+          setMessages([]);
+        }
+      } else {
+        setMessages([]);
+      }
+    } catch (error) {
+      console.error(
+        "Failed to load chat history:",
+        error
+      );
+
+      setMessages([]);
+    }
+
+    setSources?.([]);
+    setHistoryReady(true);
+  }, [selectedMaterialId]);
+
+  useEffect(() => {
+    if (!historyReady) {
+      return;
+    }
+
+    try {
+      const storageKey = getChatStorageKey();
+
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify(messages)
+      );
+    } catch (error) {
+      console.error(
+        "Failed to save chat history:",
+        error
+      );
+
+      try {
+        const storageKey =
+          getChatStorageKey();
+
+        const messagesWithoutImages =
+          messages.map((message) => ({
+            ...message,
+            image: null,
+          }));
+
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify(
+            messagesWithoutImages
+          )
+        );
+      } catch (fallbackError) {
+        console.error(
+          "Failed to save text-only chat history:",
+          fallbackError
+        );
+      }
+    }
+  }, [messages, historyReady, selectedMaterialId]);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
+  const fileToDataUrl = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+
+      reader.onerror = () => {
+        reject(
+          new Error(
+            "Failed to save image preview."
+          )
+        );
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageSelect = (event) => {
     const file =
       event.target.files?.[0];
 
@@ -93,6 +200,10 @@ function ChatArea({
       return;
     }
 
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
     setSelectedImage(file);
 
     const previewUrl =
@@ -105,9 +216,7 @@ function ChatArea({
 
   const removeImage = () => {
     if (imagePreview) {
-      URL.revokeObjectURL(
-        imagePreview
-      );
+      URL.revokeObjectURL(imagePreview);
     }
 
     setSelectedImage(null);
@@ -131,6 +240,27 @@ function ChatArea({
     const currentImagePreview =
       imagePreview;
 
+    let persistentImage = null;
+
+    if (currentImage) {
+      try {
+        if (
+          currentImage.size <=
+          1024 * 1024
+        ) {
+          persistentImage =
+            await fileToDataUrl(
+              currentImage
+            );
+        }
+      } catch (error) {
+        console.error(
+          "Could not preserve image:",
+          error
+        );
+      }
+    }
+
     setMessages((prev) => [
       ...prev,
       {
@@ -138,6 +268,7 @@ function ChatArea({
         content:
           trimmedQuestion,
         image:
+          persistentImage ||
           currentImagePreview ||
           null,
       },
