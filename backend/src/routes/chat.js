@@ -51,10 +51,6 @@ const upload =
   });
 
 
-/* =========================================================
-   GENERATE MCQS
-   ========================================================= */
-
 router.post(
   "/mcqs",
   async (
@@ -190,10 +186,6 @@ router.post(
   }
 );
 
-
-/* =========================================================
-   GENERATE FLASHCARDS
-   ========================================================= */
 
 router.post(
   "/flashcards",
@@ -352,10 +344,6 @@ router.post(
 );
 
 
-/* =========================================================
-   NORMAL CHAT + MULTIMODAL IMAGE CHAT
-   ========================================================= */
-
 router.post(
   "/",
   upload.single(
@@ -382,6 +370,55 @@ router.post(
 
       const materialId =
         req.body.materialId;
+
+      let conversationHistory =
+        [];
+
+      if (
+        req.body.conversationHistory
+      ) {
+        try {
+          const parsedHistory =
+            JSON.parse(
+              req.body.conversationHistory
+            );
+
+          if (
+            Array.isArray(
+              parsedHistory
+            )
+          ) {
+            conversationHistory =
+              parsedHistory
+                .filter(
+                  (message) =>
+                    message &&
+                    (
+                      message.role ===
+                        "user" ||
+                      message.role ===
+                        "assistant"
+                    ) &&
+                    typeof message.content ===
+                      "string" &&
+                    message.content.trim()
+                )
+                .slice(
+                  -20
+                );
+          }
+        } catch (
+          historyError
+        ) {
+          console.error(
+            "Conversation history parsing error:",
+            historyError
+          );
+
+          conversationHistory =
+            [];
+        }
+      }
 
       if (
         !question ||
@@ -448,10 +485,14 @@ router.post(
       );
 
       console.log(
+        "Previous messages:",
+        conversationHistory.length
+      );
+
+      console.log(
         "Image:",
         req.file
-          ? req.file
-              .originalname
+          ? req.file.originalname
           : "None"
       );
 
@@ -474,6 +515,8 @@ router.post(
           imageBuffer,
 
           imageMimeType,
+
+          conversationHistory,
         });
 
       res.json({
@@ -548,6 +591,5 @@ router.post(
     }
   }
 );
-
 
 export default router;

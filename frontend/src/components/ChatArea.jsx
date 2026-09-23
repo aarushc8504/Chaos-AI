@@ -24,22 +24,36 @@ function ChatArea({
   materials,
   setSources,
 }) {
-  const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState("");
+  const [question, setQuestion] =
+    useState("");
 
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
+  const [messages, setMessages] =
+    useState([]);
 
-  const [historyReady, setHistoryReady] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
-  const fileInputRef = useRef(null);
+  const [status, setStatus] =
+    useState("");
 
-  const selectedMaterial = materials?.find(
-    (material) =>
-      material._id === selectedMaterialId
-  );
+  const [selectedImage, setSelectedImage] =
+    useState(null);
+
+  const [imagePreview, setImagePreview] =
+    useState("");
+
+  const [historyReady, setHistoryReady] =
+    useState(false);
+
+  const fileInputRef =
+    useRef(null);
+
+  const selectedMaterial =
+    materials?.find(
+      (material) =>
+        material._id ===
+        selectedMaterialId
+    );
 
   const getChatStorageKey = () => {
     if (!selectedMaterialId) {
@@ -60,16 +74,28 @@ function ChatArea({
     }
 
     try {
-      const storageKey = getChatStorageKey();
+      const storageKey =
+        getChatStorageKey();
+
       const savedHistory =
-        localStorage.getItem(storageKey);
+        localStorage.getItem(
+          storageKey
+        );
 
       if (savedHistory) {
         const parsedHistory =
-          JSON.parse(savedHistory);
+          JSON.parse(
+            savedHistory
+          );
 
-        if (Array.isArray(parsedHistory)) {
-          setMessages(parsedHistory);
+        if (
+          Array.isArray(
+            parsedHistory
+          )
+        ) {
+          setMessages(
+            parsedHistory
+          );
         } else {
           setMessages([]);
         }
@@ -95,11 +121,14 @@ function ChatArea({
     }
 
     try {
-      const storageKey = getChatStorageKey();
+      const storageKey =
+        getChatStorageKey();
 
       localStorage.setItem(
         storageKey,
-        JSON.stringify(messages)
+        JSON.stringify(
+          messages
+        )
       );
     } catch (error) {
       console.error(
@@ -112,10 +141,12 @@ function ChatArea({
           getChatStorageKey();
 
         const messagesWithoutImages =
-          messages.map((message) => ({
-            ...message,
-            image: null,
-          }));
+          messages.map(
+            (message) => ({
+              ...message,
+              image: null,
+            })
+          );
 
         localStorage.setItem(
           storageKey,
@@ -123,44 +154,66 @@ function ChatArea({
             messagesWithoutImages
           )
         );
-      } catch (fallbackError) {
+      } catch (
+        fallbackError
+      ) {
         console.error(
           "Failed to save text-only chat history:",
           fallbackError
         );
       }
     }
-  }, [messages, historyReady, selectedMaterialId]);
+  }, [
+    messages,
+    historyReady,
+    selectedMaterialId,
+  ]);
 
   useEffect(() => {
     return () => {
       if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
+        URL.revokeObjectURL(
+          imagePreview
+        );
       }
     };
   }, [imagePreview]);
 
-  const fileToDataUrl = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
+  const fileToDataUrl = (
+    file
+  ) => {
+    return new Promise(
+      (
+        resolve,
+        reject
+      ) => {
+        const reader =
+          new FileReader();
 
-      reader.onload = () => {
-        resolve(reader.result);
-      };
+        reader.onload = () => {
+          resolve(
+            reader.result
+          );
+        };
 
-      reader.onerror = () => {
-        reject(
-          new Error(
-            "Failed to save image preview."
-          )
+        reader.onerror = () => {
+          reject(
+            new Error(
+              "Failed to save image preview."
+            )
+          );
+        };
+
+        reader.readAsDataURL(
+          file
         );
-      };
-
-      reader.readAsDataURL(file);
-    });
+      }
+    );
   };
 
-  const handleImageSelect = (event) => {
+  const handleImageSelect = (
+    event
+  ) => {
     const file =
       event.target.files?.[0];
 
@@ -201,22 +254,32 @@ function ChatArea({
     }
 
     if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
+      URL.revokeObjectURL(
+        imagePreview
+      );
     }
 
-    setSelectedImage(file);
+    setSelectedImage(
+      file
+    );
 
     const previewUrl =
-      URL.createObjectURL(file);
+      URL.createObjectURL(
+        file
+      );
 
-    setImagePreview(previewUrl);
+    setImagePreview(
+      previewUrl
+    );
 
     event.target.value = "";
   };
 
   const removeImage = () => {
     if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
+      URL.revokeObjectURL(
+        imagePreview
+      );
     }
 
     setSelectedImage(null);
@@ -240,7 +303,8 @@ function ChatArea({
     const currentImagePreview =
       imagePreview;
 
-    let persistentImage = null;
+    let persistentImage =
+      null;
 
     if (currentImage) {
       try {
@@ -261,18 +325,34 @@ function ChatArea({
       }
     }
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "user",
-        content:
-          trimmedQuestion,
-        image:
-          persistentImage ||
-          currentImagePreview ||
-          null,
-      },
-    ]);
+    const previousMessages =
+      messages.map(
+        (message) => ({
+          role:
+            message.role,
+
+          content:
+            message.content,
+        })
+      );
+
+    setMessages(
+      (prev) => [
+        ...prev,
+        {
+          role:
+            "user",
+
+          content:
+            trimmedQuestion,
+
+          image:
+            persistentImage ||
+            currentImagePreview ||
+            null,
+        },
+      ]
+    );
 
     setQuestion("");
     setSelectedImage(null);
@@ -324,6 +404,18 @@ function ChatArea({
         );
       }
 
+      if (
+        previousMessages.length >
+        0
+      ) {
+        formData.append(
+          "conversationHistory",
+          JSON.stringify(
+            previousMessages
+          )
+        );
+      }
+
       if (currentImage) {
         formData.append(
           "image",
@@ -335,9 +427,14 @@ function ChatArea({
         await fetch(
           `${API_URL}/api/chat`,
           {
-            method: "POST",
-            credentials: "include",
-            body: formData,
+            method:
+              "POST",
+
+            credentials:
+              "include",
+
+            body:
+              formData,
           }
         );
 
@@ -370,16 +467,21 @@ function ChatArea({
         answerSources
       );
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            data.answer,
-          sources:
-            answerSources,
-        },
-      ]);
+      setMessages(
+        (prev) => [
+          ...prev,
+          {
+            role:
+              "assistant",
+
+            content:
+              data.answer,
+
+            sources:
+              answerSources,
+          },
+        ]
+      );
 
       setStatus("");
     } catch (error) {
@@ -390,17 +492,25 @@ function ChatArea({
 
       setSources([]);
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content:
-            error.message ||
-            "I couldn't generate an answer right now. Please try again.",
-          sources: [],
-          error: true,
-        },
-      ]);
+      setMessages(
+        (prev) => [
+          ...prev,
+          {
+            role:
+              "assistant",
+
+            content:
+              error.message ||
+              "I couldn't generate an answer right now. Please try again.",
+
+            sources:
+              [],
+
+            error:
+              true,
+          },
+        ]
+      );
 
       setStatus("");
     } finally {
@@ -412,10 +522,12 @@ function ChatArea({
     event
   ) => {
     if (
-      event.key === "Enter" &&
+      event.key ===
+        "Enter" &&
       !event.shiftKey
     ) {
       event.preventDefault();
+
       askQuestion();
     }
   };
@@ -427,7 +539,9 @@ function ChatArea({
       return;
     }
 
-    setQuestion(prompt);
+    setQuestion(
+      prompt
+    );
   };
 
   return (
@@ -686,7 +800,9 @@ function ChatArea({
               <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-800">
 
                 <img
-                  src={imagePreview}
+                  src={
+                    imagePreview
+                  }
                   alt="Selected"
                   className="h-full w-full object-cover"
                 />
@@ -721,13 +837,13 @@ function ChatArea({
                 onClick={
                   removeImage
                 }
-                disabled={loading}
+                disabled={
+                  loading
+                }
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-600 transition hover:bg-zinc-800 hover:text-zinc-300 disabled:opacity-50"
                 title="Remove image"
               >
-
                 <X size={14} />
-
               </button>
 
             </div>
@@ -752,7 +868,9 @@ function ChatArea({
                   : "Ask something from your study material..."
               }
               rows={3}
-              disabled={loading}
+              disabled={
+                loading
+              }
               className="w-full resize-none bg-transparent px-4 pb-12 pt-4 text-sm text-zinc-200 outline-none placeholder:text-zinc-700 disabled:cursor-not-allowed disabled:opacity-60"
             />
 
@@ -775,7 +893,9 @@ function ChatArea({
                 onClick={() =>
                   fileInputRef.current?.click()
                 }
-                disabled={loading}
+                disabled={
+                  loading
+                }
                 className="flex h-7 items-center gap-1.5 rounded-lg px-2 text-zinc-600 transition hover:bg-zinc-800 hover:text-zinc-300 disabled:cursor-not-allowed disabled:opacity-50"
                 title="Attach image"
               >
